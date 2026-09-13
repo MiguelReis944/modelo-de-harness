@@ -11,21 +11,33 @@ if [ -z "$ROOT" ]; then
 fi
 SKILL_FILE="${ROOT}/catalog/skills/using-superpowers/SKILL.md"
 
-using_superpowers_content=$(cat "$SKILL_FILE" 2>&1 || echo "Error reading using-superpowers skill at ${SKILL_FILE}")
+# JSON encoding vai pro python (json.dumps) em vez de escape manual em bash, que não
+# cobre corretamente todos os caracteres de controle/unicode.
+if [ -f "$SKILL_FILE" ]; then
+  cat "$SKILL_FILE"
+else
+  echo "Error reading using-superpowers skill at ${SKILL_FILE}"
+fi | python3 - << 'PY'
+import json
+import sys
 
-escape_for_json() {
-    local s="$1"
-    s="${s//\\/\\\\}"
-    s="${s//\"/\\\"}"
-    s="${s//$'\n'/\\n}"
-    s="${s//$'\r'/\\r}"
-    s="${s//$'\t'/\\t}"
-    printf '%s' "$s"
-}
-
-using_superpowers_escaped=$(escape_for_json "$using_superpowers_content")
-session_context="<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of the 'using-superpowers' skill - your introduction to using skills. For all other skills, use the Skill tool:**\n\n${using_superpowers_escaped}\n</EXTREMELY_IMPORTANT>"
-
-printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$session_context"
+sys.stdout.reconfigure(newline="\n")
+content = sys.stdin.read()
+session_context = (
+    "<EXTREMELY_IMPORTANT>\n"
+    "You have superpowers.\n\n"
+    "**Below is the full content of the 'using-superpowers' skill - your "
+    "introduction to using skills. For all other skills, use the Skill "
+    "tool:**\n\n"
+    f"{content}\n"
+    "</EXTREMELY_IMPORTANT>"
+)
+print(json.dumps({
+    "hookSpecificOutput": {
+        "hookEventName": "SessionStart",
+        "additionalContext": session_context,
+    }
+}, ensure_ascii=False))
+PY
 
 exit 0

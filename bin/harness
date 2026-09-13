@@ -6,13 +6,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CFG="$ROOT/harness.config.yaml"
 cd "$ROOT"
 
-# extrai itens de uma lista YAML simples sob uma chave top-level
+# extrai itens de uma lista YAML simples sob uma chave top-level (ver bin/yaml_list.py)
 yaml_list() { # $1=key $2=file
-  awk -v k="$1" '
-    $0 ~ "^"k":[[:space:]]*$" {f=1; next}
-    f && /^[[:space:]]*-[[:space:]]/ {sub(/^[[:space:]]*-[[:space:]]*/,""); sub(/[[:space:]]*#.*/,""); gsub(/"/,""); print; next}
-    f && /^[^[:space:]#]/ {f=0}
-  ' "$2"
+  python3 "$ROOT/bin/yaml_list.py" "$1" "$2"
 }
 
 cmd_sync() {

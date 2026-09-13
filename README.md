@@ -9,13 +9,17 @@ skills, MCP servers e perfis de sub-agente para o Claude Code, inspirado no padr
 
 ```
 harness/
+├── .github/workflows/ci.yml  # valida JSON, shellcheck, sync/doctor e testes a cada push/PR
 ├── .gitmodules           # gerado pelo git, mapeia cada submodule ao seu remoto
 ├── harness.config.yaml   # perfil ativo: quais skills/agentes ligar
 ├── workspace.yaml        # manifesto dos projetos (domain/type/summary)
 ├── AGENTS.md             # contrato do agente (lido também como CLAUDE.md, gerado)
 ├── bin/
 │   ├── harness            # CLI: sync | doctor | skills | new-project | update-projects
-│   └── render_mcp.py
+│   ├── yaml_list.py        # parser da lista YAML de harness.config.yaml (sem awk)
+│   ├── render_mcp.py       # mcp/servers.json -> .mcp.json
+│   └── render_settings.py  # hooks/hooks.json -> .claude/settings.json (merge)
+├── tests/                 # testes de bin/*.py, sem dependências externas (bash tests/run.sh)
 ├── catalog/skills/        # biblioteca de skills (Agent Skills / SKILL.md)
 ├── agents/                # perfis de sub-agente (orquestrador, revisor)
 ├── mcp/servers.json       # MCP servers canônicos (GitHub, context7, ...)
@@ -61,6 +65,19 @@ Se já clonou sem `--recurse-submodules`: `git submodule update --init --recursi
 - `skills` — lista catálogo completo vs. o conjunto ativo (`harness.config.yaml`)
 - `new-project <nome> <url>` — adiciona um repo como submodule em `workspace/`
 - `update-projects` — atualiza todos os submodules pro commit mais recente do remoto
+
+## Testes e CI
+
+`tests/` cobre os scripts em `bin/` (sem framework, sem dependência externa):
+
+```bash
+bash tests/run.sh
+```
+
+O `.github/workflows/ci.yml` roda isso a cada push/PR na `main`, mais validação de JSON
+(`mcp/servers.json`, `hooks/hooks.json`), `shellcheck` em `bin/harness` e
+`hooks/session-start.sh`, e um `sync` + `doctor` completos — garante que a projeção pro
+Claude Code não quebra silenciosamente.
 
 ## Fluxo do dia a dia
 
@@ -133,7 +150,8 @@ skills nativas do Claude Code (docx, pdf, pptx...).
 
 O catálogo completo pode crescer sem tudo ficar ativo — `active_skills` em
 `harness.config.yaml` é o conjunto realmente carregado, pra não estourar a janela de
-contexto.
+contexto. Hoje as 23 skills do catálogo estão todas ativas; se a janela de contexto
+apertar, desative alguma removendo a entrada correspondente e rodando `sync` de novo.
 
 **Hook de enforcement instalado:** `hooks/session-start.sh` (declarado em
 `hooks/hooks.json`, projetado por `bin/harness sync` para `.claude/settings.json`)

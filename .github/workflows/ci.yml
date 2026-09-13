@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Valida JSON canonico (mcp/servers.json, hooks/hooks.json)
+        run: |
+          for f in mcp/servers.json hooks/hooks.json; do
+            python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$f"
+            echo "ok: $f"
+          done
+
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
+        with:
+          scandir: '.'
+          ignore_paths: catalog workspace vault
+
+      - name: harness sync
+        run: bash bin/harness sync
+
+      - name: harness doctor (skills/agentes/hooks/MCP)
+        run: bash bin/harness doctor
+
+      - name: testes (bin/render_mcp.py, bin/render_settings.py, bin/yaml_list.py)
+        run: bash tests/run.sh

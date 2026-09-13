@@ -5,6 +5,9 @@ Emite { "mcpServers": { ... } } em stdout, só com servers enabled."""
 import json, sys
 
 def main():
+    # python nativo do Windows traduz \n -> \r\n no stdout por padrao; evita CRLF
+    # vazando pro .mcp.json gerado (o `>` do bash redireciona bytes crus).
+    sys.stdout.reconfigure(newline="\n")
     path = sys.argv[1]
     with open(path) as f:
         data = json.load(f)

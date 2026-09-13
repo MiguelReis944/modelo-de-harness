@@ -21,7 +21,8 @@ def main():
     for event, matchers in hooks_cfg.get("hooks", {}).items():
         settings["hooks"][event] = matchers  # canonical source wins for events it declares
 
-    with open(settings_path, "w", encoding="utf-8") as f:
+    # newline="\n": python nativo do Windows traduziria \n -> \r\n por padrao.
+    with open(settings_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(settings, f, indent=2, ensure_ascii=False)
         f.write("\n")
 
