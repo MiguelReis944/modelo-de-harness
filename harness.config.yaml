@@ -1,0 +1,39 @@
+# Perfil ativo do harness. `bin/harness sync` lê daqui.
+name: harness
+
+tools:
+  - claude
+
+active_skills:
+  - using-superpowers
+  - repo-orchestrator
+  - prepare-harness
+  - brainstorming
+  - writing-plans
+  - executing-plans
+  - subagent-driven-development
+  - dispatching-parallel-agents
+  - test-driven-development
+  - systematic-debugging
+  - docker-compose
+  - verification-before-completion
+  - using-git-worktrees
+  - requesting-code-review
+  - receiving-code-review
+  - finishing-a-development-branch
+  - writing-skills
+  - obsidian-brain
+  - github-actions
+  - frontend-design
+  - webapp-testing
+  - mcp-builder
+  - skill-creator
+
+active_agents:
+  - orquestrador
+  - revisor
+
+vault:
+  team: vault/team
+  projects: vault/projects
+  agents_md: vault/AGENTS.md

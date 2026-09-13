@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+# harness — ferramental deste harness (Claude Code), workspace/ em git submodules
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CFG="$ROOT/harness.config.yaml"
+cd "$ROOT"
+
+# extrai itens de uma lista YAML simples sob uma chave top-level
+yaml_list() { # $1=key $2=file
+  awk -v k="$1" '
+    $0 ~ "^"k":[[:space:]]*$" {f=1; next}
+    f && /^[[:space:]]*-[[:space:]]/ {sub(/^[[:space:]]*-[[:space:]]*/,""); sub(/[[:space:]]*#.*/,""); gsub(/"/,""); print; next}
+    f && /^[^[:space:]#]/ {f=0}
+  ' "$2"
+}
+
+cmd_sync() {
+  # Copia (nao symlink): criar symlink no Windows exige Modo Desenvolvedor/admin, e um
+  # symlink que falha silenciosamente vira copia estatica desatualizada sem avisar.
+  # Rode este comando de novo sempre que editar catalog/skills/, agents/ ou mcp/servers.json.
+  local skills agents
+  skills=$(yaml_list active_skills "$CFG")
+  agents=$(yaml_list active_agents "$CFG")
+
+  cp -f AGENTS.md CLAUDE.md
+  echo "  CLAUDE.md <- AGENTS.md (copia)"
+
+  rm -rf .claude/skills .claude/agents
+  mkdir -p .claude/skills .claude/agents
+  for s in $skills; do cp -r "catalog/skills/$s" ".claude/skills/$s"; done
+  for a in $agents; do cp -f "agents/$a/AGENT.md" ".claude/agents/$a.md"; done
+  python3 bin/render_mcp.py mcp/servers.json > .mcp.json
+  python3 bin/render_settings.py hooks/hooks.json .claude/settings.json
+  echo "  claude:  .claude/skills/* .claude/agents/* .mcp.json .claude/settings.json (hooks)"
+  echo "sync ok."
+}
+
+cmd_doctor() {
+  local skills agents ok=0
+  skills=$(yaml_list active_skills "$CFG")
+  agents=$(yaml_list active_agents "$CFG")
+
+  echo "== binarios =="
+  command -v claude >/dev/null && echo "  claude: ok" || echo "  claude: faltando (npm i -g @anthropic-ai/claude-code)"
+
+  echo "== skills ativas =="
+  for s in $skills; do
+    if [ -f "catalog/skills/$s/SKILL.md" ]; then echo "  $s: ok"; else echo "  $s: SKILL.md AUSENTE"; ok=1; fi
+  done
+
+  echo "== sub-agentes =="
+  for a in $agents; do
+    if [ -f "agents/$a/AGENT.md" ]; then echo "  $a: ok"; else echo "  $a: AGENT.md AUSENTE"; ok=1; fi
+  done
+
+  echo "== submodules (workspace/) =="
+  git submodule status | while read -r line; do
+    case "$line" in
+      -*) echo "  NAO INICIALIZADO: ${line#-}";;
+      +*) echo "  COMMIT DIVERGENTE DO REGISTRADO: ${line#+}";;
+      *)  echo "  ok: ${line# }";;
+    esac
+  done
+
+  echo "== hooks =="
+  if [ -f hooks/hooks.json ] && [ -f .claude/settings.json ]; then
+    python3 -c "
+import json
+h = json.load(open('.claude/settings.json', encoding='utf-8')).get('hooks', {})
+if 'SessionStart' in h:
+    print('  SessionStart: ok (' + h['SessionStart'][0]['hooks'][0]['command'] + ')')
+else:
+    print('  SessionStart: AUSENTE em .claude/settings.json (rode bin/harness sync)')
+"
+  else
+    echo "  hooks/hooks.json ou .claude/settings.json ausente (rode bin/harness sync)"
+  fi
+
+  echo "== MCP =="
+  python3 - "mcp/servers.json" << 'PY'
+import json,sys
+d=json.load(open(sys.argv[1]))
+for n,s in d.get("servers",{}).items():
+    st="ENABLED" if s.get("enabled") else "off"
+    print(f"  {n}: {st} ({s.get('transport','stdio')}) - auth: {s.get('auth','-')}")
+print("  lembrete: credenciais sao locais (env / *.local.json), nunca no repo.")
+PY
+  return $ok
+}
+
+cmd_skills() {
+  echo "== catalogo =="; ls -1 catalog/skills
+  echo "== ativas =="; yaml_list active_skills "$CFG"
+}
+
+cmd_new_project() {
+  local name="${1:-}" url="${2:-}"
+  [ -n "$name" ] && [ -n "$url" ] || { echo "uso: harness new-project <nome> <git-url>"; exit 1; }
+  git submodule add "$url" "workspace/$name"
+  cat >> workspace.yaml << YAML
+
+  - name: $name
+    path: workspace/$name
+    repo: $url
+YAML
+  echo "adicionado como submodule: workspace/$name"
+  echo "edite workspace.yaml (domain/type/summary, se quiser) e commite:"
+  echo "  git add .gitmodules workspace/$name workspace.yaml"
+  echo "  git commit -m \"add $name as submodule\""
+}
+
+cmd_update_projects() {
+  git submodule update --remote --merge
+  echo ""
+  echo "Submodules atualizados. Revise 'git status' e, se quiser fixar essas"
+  echo "novas versões no harness:"
+  echo "  git add workspace/"
+  echo "  git commit -m \"bump submodules\""
+}
+
+case "${1:-help}" in
+  sync)            cmd_sync ;;
+  doctor)          cmd_doctor ;;
+  skills)          cmd_skills ;;
+  new-project)     shift; cmd_new_project "$@" ;;
+  update-projects) cmd_update_projects ;;
+  *) cat <<USAGE
+harness — ferramental do harness
+  sync                       projeta skills/agents/mcp/hooks pro Claude Code (.claude/, .mcp.json)
+  doctor                     confere binarios, skills, sub-agentes, MCP e submodules
+  skills                     lista catalogo vs ativo
+  new-project <nome> <url>   adiciona repo como submodule em workspace/
+  update-projects            atualiza todos os submodules pro commit mais recente do remoto
+USAGE
+  ;;
+esac

@@ -1,0 +1,11 @@
+# harness vault
+# Indice plano pra ingestao por agente (padrao llms.txt).
+
+/ : index.md — porta de entrada (MOC)
+/AGENTS.md : contrato operacional do vault (LLM Wiki — 8 skills)
+/_meta/skills/ : skills operacionais (ingest, query, lint, cross-link, status, export, context, bridge)
+/_meta/taxonomy.md : vocabulario controlado (entity types, relation types, tags)
+/projects/ : um sub-wiki por projeto de workspace/ (_context.md, raw/, wiki/, output/)
+/team/regras-de-negocio.md : regras que atravessam mais de um projeto
+/team/glossario.md : glossario de termos usados nos projetos
+/team/projetos/ : resumo curado por repo (visao rapida, fora do fluxo de ingest)

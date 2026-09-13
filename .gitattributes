@@ -1,0 +1,5 @@
+*.sh text eol=lf
+*.py text eol=lf
+catalog/skills/subagent-driven-development/scripts/* text eol=lf
+catalog/skills/brainstorming/scripts/*.sh text eol=lf
+bin/harness text eol=lf

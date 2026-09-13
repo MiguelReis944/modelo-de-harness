@@ -1,0 +1,25 @@
+{
+  "_note": "Fonte canônica dos MCP servers do harness. `bin/harness sync` renderiza os `enabled: true` em .mcp.json. Credenciais ficam locais (env / *.local.json), nunca aqui.",
+  "servers": {
+    "github": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}" },
+      "auth": "pat",
+      "enabled": true
+    },
+    "context7": {
+      "transport": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "auth": "none",
+      "enabled": true
+    },
+    "linear": {
+      "transport": "http",
+      "url": "https://mcp.linear.app/sse",
+      "auth": "oauth",
+      "enabled": false
+    }
+  }
+}

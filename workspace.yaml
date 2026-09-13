@@ -1,0 +1,15 @@
+# Manifesto da workspace. A skill `repo-orchestrator` lê este arquivo pra saber o que cada
+# repo é antes de trabalhar nele. Os repos SÃO submodules (path = pasta em .gitmodules).
+#
+# Adicione um projeto com `bin/harness new-project <nome> <url>`, que faz `git submodule
+# add` e já cria a entrada abaixo. Exemplo de formato:
+#
+# projects:
+#   - name: nome-do-projeto
+#     path: workspace/nome-do-projeto
+#     repo: https://github.com/<seu-usuario>/nome-do-projeto.git
+#     domain: <dominio, ex.: produtividade, jogos, cli>
+#     type: <tipo, ex.: web-app, cli, app-desktop>
+#     summary: "<resumo de 1 linha>"
+
+projects: []
