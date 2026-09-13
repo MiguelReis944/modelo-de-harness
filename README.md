@@ -5,6 +5,65 @@ seu próprio repositório Git no GitHub, via **git submodules** — com uma font
 skills, MCP servers e perfis de sub-agente para o Claude Code, inspirado no padrão do
 [fintech-harness](https://github.com/LucaPinheiro/fintech-harness).
 
+Este repositório é um **template**: vem com `workspace/` vazio (`projects: []` em
+[workspace.yaml](workspace.yaml)) e todo o resto — skills, agentes, MCP, CI — pronto pra
+uso. A ideia é você adotar ele como o harness dos *seus* projetos.
+
+## Como usar
+
+### 1. Adote o template
+
+```bash
+git clone --recurse-submodules <url-deste-repo-ou-do-seu-fork> meu-harness
+cd meu-harness
+```
+
+Se for usar como base do seu próprio harness (não só experimentar), troque o remoto pro
+seu repositório: `git remote set-url origin <seu-novo-remoto>` (ou recrie do zero com
+`git init` se preferir não carregar o histórico deste template).
+
+### 2. Rode o setup inicial
+
+```bash
+./bin/harness sync     # gera CLAUDE.md, .claude/skills, .claude/agents, .mcp.json
+./bin/harness doctor    # checagem: binário do claude, skills/agentes, hooks, MCP
+claude                  # abre o Claude Code na raiz do harness
+```
+
+### 3. Diga ao agente quais repositórios você vai trabalhar
+
+Dentro do Claude Code, não precisa decorar comando nenhum — é só colar os links dos
+repositórios que você quer gerenciar por aqui e pedir pra adicionar. Por exemplo:
+
+> Adiciona esses repos ao workspace:
+> https://github.com/seu-usuario/projeto-a
+> https://github.com/seu-usuario/projeto-b
+
+O agente, para cada link:
+
+1. Roda `bin/harness new-project <nome> <url>` (`git submodule add` + registra a entrada
+   em `workspace.yaml`).
+2. Preenche `domain`/`type`/`summary` daquela entrada (pergunta se não conseguir inferir).
+3. Roda `sync` de novo e commita as mudanças **com sua aprovação**.
+
+Opcionalmente, peça pra ligar o projeto ao vault de conhecimento (skill `bridge` — ver
+[Vault](#vault--base-de-conhecimento-padrão-obsidian) abaixo) se quiser que o agente
+sintetize specs/decisões daquele repo em páginas de wiki interligadas.
+
+A partir daí, qualquer tarefa que você pedir sobre um desses projetos passa pela skill
+`repo-orchestrator`: o agente identifica em qual repo a tarefa se aplica, lê o
+`workspace.yaml`, o `AGENTS.md` do projeto e o vault, e só então propõe um plano — sem
+você precisar dizer "cd pra tal pasta" toda vez.
+
+Prefere fazer manualmente em vez de pedir pro agente? O comando é o mesmo que ele roda:
+
+```bash
+bin/harness new-project <nome> <url>
+```
+
+Depois preencha `domain`/`type`/`summary` da entrada em [workspace.yaml](workspace.yaml)
+e commite.
+
 ## Estrutura
 
 ```
@@ -44,14 +103,17 @@ Cada projeto dentro de `workspace/` continua sendo um repositório 100% independ
 seu próprio histórico e remoto. Commits e pushes dentro de `workspace/<projeto>`, por
 exemplo, vão para o remoto daquele projeto, nunca para o repositório do harness.
 
-## Setup (primeira vez / máquina nova)
+## Clonando numa máquina nova (harness já com projetos)
+
+Depois que você já adotou o template e adicionou projetos (passo 1-3 acima), clonar em
+outra máquina é só:
 
 ```bash
-git clone --recurse-submodules <url-do-seu-fork-ou-harness>
-cd harness
-./bin/harness sync     # gera CLAUDE.md, .claude/skills, .claude/agents, .mcp.json
-./bin/harness doctor    # checagem
-claude                  # abra o Claude Code na raiz (ou em workspace/<projeto>)
+git clone --recurse-submodules <url-do-seu-harness>
+cd meu-harness
+./bin/harness sync
+./bin/harness doctor
+claude
 ```
 
 Se já clonou sem `--recurse-submodules`: `git submodule update --init --recursive`.
@@ -103,12 +165,8 @@ git commit -m "bump <projeto>"
 
 ### Adicionar um novo projeto
 
-```bash
-bin/harness new-project novo-projeto https://github.com/<seu-usuario>/novo-projeto.git
-```
-
-Depois, preencha `domain`/`type`/`summary` da entrada em [workspace.yaml](workspace.yaml)
-e crie a página correspondente em `vault/team/projetos/<nome>.md`, e commite.
+Ver [Como usar](#como-usar) — na prática, é pedir pro agente ou rodar
+`bin/harness new-project <nome> <url>` diretamente.
 
 ## Skills ativas (`catalog/skills/`)
 
