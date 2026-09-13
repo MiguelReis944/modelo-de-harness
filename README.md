@@ -209,6 +209,9 @@ fecha o ciclo.
 | `writing-guidelines` | revisão de prosa/docs contra um guia de estilo — útil pro vault e READMEs |
 | `deploy-to-vercel` | deploy de app/site na Vercel (preview por padrão, produção só se pedido explicitamente) |
 | `vercel-optimize` | auditoria de custo/performance de projetos na Vercel (Next.js, SvelteKit, Nuxt) — métricas antes de recomendação |
+| `supabase` | Database, Auth, RLS, Storage, Edge Functions, `supabase-js`/`@supabase/ssr` em Next.js/React — debugging de erros Postgres/Auth/Storage |
+| `supabase-postgres-best-practices` | guia de performance Postgres mantido pela Supabase — índices, queries lentas, connection exhaustion, RLS que mata performance |
+| `cloudflare` | skill "roteador" da Cloudflare — carrega referência específica sob demanda (R2, KV, Workers, Queues...); cobre R2 via API S3-compatible, presigned URLs, CORS, multipart, limits/pricing do free tier |
 
 `frontend-design`, `webapp-testing`, `mcp-builder`, `skill-creator`, `claude-api` e
 `discernment-nudge` vêm oficialmente do repositório
@@ -218,7 +221,11 @@ nativas do Claude Code (docx, pdf, pptx...). `vercel-react-best-practices`,
 `deploy-to-vercel` e `vercel-optimize` vêm de
 [`vercel-labs/agent-skills`](https://github.com/vercel-labs/agent-skills) — relevantes
 porque pelo menos um projeto real gerenciado por este tipo de harness costuma ser
-Next.js/React deployado na Vercel.
+Next.js/React deployado na Vercel. `supabase` e `supabase-postgres-best-practices` vêm de
+[`supabase/agent-skills`](https://github.com/supabase/agent-skills) (oficial); `cloudflare`
+vem de [`cloudflare/skills`](https://github.com/cloudflare/skills) (oficial) — juntos
+cobrem o resto do stack gratuito típico (Postgres/Auth via Supabase, storage de objetos
+via R2 S3-compatible).
 
 O catálogo completo pode crescer sem tudo ficar ativo — `active_skills` em
 `harness.config.yaml` é o conjunto realmente carregado, pra não estourar a janela de

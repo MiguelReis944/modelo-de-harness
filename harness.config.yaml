@@ -36,6 +36,9 @@ active_skills:
   - discernment-nudge
   - vercel-composition-patterns
   - writing-guidelines
+  - supabase
+  - supabase-postgres-best-practices
+  - cloudflare
 
 active_agents:
   - orquestrador
