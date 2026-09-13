@@ -201,14 +201,28 @@ fecha o ciclo.
 | `webapp-testing` | toolkit oficial de testes web com Playwright (screenshot, log de console, descoberta de elemento) |
 | `mcp-builder` | guia pra construir servidor MCP (Python/FastMCP ou Node/TS) — expor um projeto como ferramenta do Claude Code |
 | `skill-creator` | criar/empacotar/avaliar skills novas (scripts de validação e benchmark) |
+| `claude-api` | referência de API/SDK da Anthropic — model ids, pricing, streaming, tool use, MCP, caching; complementa `mcp-builder` |
+| `discernment-nudge` | autocrítica antes de finalizar uma resposta substantiva (plano, estimativa, análise) — complementa `verification-before-completion` |
+| `vercel-react-best-practices` | 70 regras de performance React/Next.js da engenharia da Vercel, priorizadas por impacto |
+| `vercel-composition-patterns` | padrões de composição de componentes React (compound components, render props, context) |
+| `web-design-guidelines` | audita UI contra o Web Interface Guidelines (acessibilidade, UX) — complementa `frontend-design` (que é sobre estética, não compliance) |
+| `writing-guidelines` | revisão de prosa/docs contra um guia de estilo — útil pro vault e READMEs |
+| `deploy-to-vercel` | deploy de app/site na Vercel (preview por padrão, produção só se pedido explicitamente) |
+| `vercel-optimize` | auditoria de custo/performance de projetos na Vercel (Next.js, SvelteKit, Nuxt) — métricas antes de recomendação |
 
-`frontend-design`, `webapp-testing`, `mcp-builder` e `skill-creator` vêm oficialmente do
-repositório [`anthropics/skills`](https://github.com/anthropics/skills) — mesma fonte das
-skills nativas do Claude Code (docx, pdf, pptx...).
+`frontend-design`, `webapp-testing`, `mcp-builder`, `skill-creator`, `claude-api` e
+`discernment-nudge` vêm oficialmente do repositório
+[`anthropics/skills`](https://github.com/anthropics/skills) — mesma fonte das skills
+nativas do Claude Code (docx, pdf, pptx...). `vercel-react-best-practices`,
+`vercel-composition-patterns`, `web-design-guidelines`, `writing-guidelines`,
+`deploy-to-vercel` e `vercel-optimize` vêm de
+[`vercel-labs/agent-skills`](https://github.com/vercel-labs/agent-skills) — relevantes
+porque pelo menos um projeto real gerenciado por este tipo de harness costuma ser
+Next.js/React deployado na Vercel.
 
 O catálogo completo pode crescer sem tudo ficar ativo — `active_skills` em
 `harness.config.yaml` é o conjunto realmente carregado, pra não estourar a janela de
-contexto. Hoje as 23 skills do catálogo estão todas ativas; se a janela de contexto
+contexto. Hoje todas as skills do catálogo estão ativas; se a janela de contexto
 apertar, desative alguma removendo a entrada correspondente e rodando `sync` de novo.
 
 **Hook de enforcement instalado:** `hooks/session-start.sh` (declarado em

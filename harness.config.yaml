@@ -28,6 +28,14 @@ active_skills:
   - webapp-testing
   - mcp-builder
   - skill-creator
+  - vercel-react-best-practices
+  - deploy-to-vercel
+  - web-design-guidelines
+  - vercel-optimize
+  - claude-api
+  - discernment-nudge
+  - vercel-composition-patterns
+  - writing-guidelines
 
 active_agents:
   - orquestrador
