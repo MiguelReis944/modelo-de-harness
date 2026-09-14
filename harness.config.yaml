@@ -39,6 +39,7 @@ active_skills:
   - supabase
   - supabase-postgres-best-practices
   - cloudflare
+  - owasp-security
 
 active_agents:
   - orquestrador

@@ -212,6 +212,7 @@ fecha o ciclo.
 | `supabase` | Database, Auth, RLS, Storage, Edge Functions, `supabase-js`/`@supabase/ssr` em Next.js/React — debugging de erros Postgres/Auth/Storage |
 | `supabase-postgres-best-practices` | guia de performance Postgres mantido pela Supabase — índices, queries lentas, connection exhaustion, RLS que mata performance |
 | `cloudflare` | skill "roteador" da Cloudflare — carrega referência específica sob demanda (R2, KV, Workers, Queues...); cobre R2 via API S3-compatible, presigned URLs, CORS, multipart, limits/pricing do free tier |
+| `owasp-security` | checklist OWASP Top 10:2025, ASVS 5.0 (níveis L1/L2/L3), LLM Top 10:2025 e Agentic AI Security (2026, ASI01-10) — padrões seguros por linguagem (20+) e uma seção anti-falso-positivo antes de reportar achado |
 
 `frontend-design`, `webapp-testing`, `mcp-builder`, `skill-creator`, `claude-api` e
 `discernment-nudge` vêm oficialmente do repositório
@@ -226,6 +227,13 @@ Next.js/React deployado na Vercel. `supabase` e `supabase-postgres-best-practice
 vem de [`cloudflare/skills`](https://github.com/cloudflare/skills) (oficial) — juntos
 cobrem o resto do stack gratuito típico (Postgres/Auth via Supabase, storage de objetos
 via R2 S3-compatible).
+
+`owasp-security` é a única exceção ao padrão "só fonte oficial do fabricante" — não existe
+skill oficial da OWASP. Vem de [`agamm/claude-code-owasp`](https://github.com/agamm/claude-code-owasp)
+(MIT, mantenedor individual, mas conteúdo lido e conferido linha a linha antes de vendorizar).
+Complementa o `/security-review` nativo do Claude Code (que varre o diff atual) com
+checklists e padrões de referência — e a seção de Agentic AI Security cobre riscos do
+próprio harness (MCP servers, sub-agentes), não só dos projetos em `workspace/`.
 
 O catálogo completo pode crescer sem tudo ficar ativo — `active_skills` em
 `harness.config.yaml` é o conjunto realmente carregado, pra não estourar a janela de
