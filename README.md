@@ -235,6 +235,47 @@ Complementa o `/security-review` nativo do Claude Code (que varre o diff atual) 
 checklists e padrões de referência — e a seção de Agentic AI Security cobre riscos do
 próprio harness (MCP servers, sub-agentes), não só dos projetos em `workspace/`.
 
+## `ponytail` — modo "dev preguiçoso" sempre ativo
+
+Diferente de todo o resto do catálogo, `ponytail` não ativa sob demanda por descrição —
+ele se injeta em **toda resposta de código**, via hook, até ser desligado. A regra é uma
+escada YAGNI: antes de escrever código novo, pare no primeiro degrau que resolver —
+"isso já existe na codebase?", "a stdlib resolve?", "uma dependência já instalada
+resolve?", "cabe numa linha?" — e só then escreva o mínimo necessário. Simplificação
+deliberada que corta uma esquina real (lock global, scan O(n²)) é permitida, mas exige um
+comentário `ponytail:` nomeando o teto e o caminho de upgrade — não é "esconder a
+dívida", é rastreá-la.
+
+Vem de [`dietrichgebert/ponytail`](https://github.com/dietrichgebert/ponytail) (MIT).
+**Ressalva que não dá pra pular**: o repositório tem 138 mil estrelas contra 341
+*watchers* e um dono com ~2 mil seguidores — uma proporção fora do padrão normal, sinal
+de manipulação de estrelas (farm/compra). Isso não prova conteúdo malicioso, mas invalida
+"popularidade" como sinal de confiança aqui. A decisão de vendorizar foi baseada em ler o
+conteúdo inteiro (o `SKILL.md` principal, os 5 sub-skills, e os ~600 linhas de hooks JS)
+antes de qualquer cópia — nada de rede, telemetria ou coleta de dados; os hooks só leem/
+escrevem um arquivo de estado local.
+
+**Como foi adaptado**: o pacote original é um plugin multi-agente (Cursor, Codex,
+Copilot, Windsurf...) com ~15 arquivos de infraestrutura que este harness não usa. Só
+vendorizamos a parte de Claude Code:
+
+- `catalog/skills/ponytail{,-audit,-debt,-gain,-help,-review}/` — os 6 skills (o
+  principal + 5 auxiliares: `ponytail-review` audita um diff, `ponytail-audit` audita o
+  repo inteiro, `ponytail-debt` coleta os comentários `ponytail:` num ledger, `ponytail-
+  gain`/`ponytail-help` são referência).
+- `hooks/ponytail/` — os scripts Node que injetam o ruleset (`ponytail-activate.js` no
+  `SessionStart`, `ponytail-subagent.js` no `SubagentStart` — sem isso sub-agentes
+  disparados por Task rodam sem o modo, `ponytail-mode-tracker.js` no `UserPromptSubmit`,
+  que lê comandos `/ponytail <nível>`). Uma única linha foi ajustada
+  (`ponytail-instructions.js`): o caminho do `SKILL.md`, que no pacote original é
+  `hooks/../skills/ponytail/SKILL.md` e aqui vira `hooks/../../catalog/skills/ponytail/SKILL.md`,
+  para bater com a estrutura deste harness.
+
+**Uso**: `/ponytail lite|full|ultra|off` troca o nível a qualquer momento; "stop ponytail"
+ou "normal mode" desliga. **full** é o padrão. O estado persiste em `~/.claude/
+.ponytail-active` — por usuário na máquina, não por repositório, então vale pra todo
+projeto que você abrir com Claude Code, não só os deste harness.
+
 O catálogo completo pode crescer sem tudo ficar ativo — `active_skills` em
 `harness.config.yaml` é o conjunto realmente carregado, pra não estourar a janela de
 contexto. Hoje todas as skills do catálogo estão ativas; se a janela de contexto

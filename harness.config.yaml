@@ -40,6 +40,12 @@ active_skills:
   - supabase-postgres-best-practices
   - cloudflare
   - owasp-security
+  - ponytail
+  - ponytail-audit
+  - ponytail-debt
+  - ponytail-gain
+  - ponytail-help
+  - ponytail-review
 
 active_agents:
   - orquestrador

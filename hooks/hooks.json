@@ -9,6 +9,33 @@
             "command": "bash hooks/session-start.sh",
             "shell": "bash",
             "async": false
+          },
+          {
+            "type": "command",
+            "command": "node hooks/ponytail/ponytail-activate.js",
+            "async": false
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node hooks/ponytail/ponytail-subagent.js",
+            "async": false
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node hooks/ponytail/ponytail-mode-tracker.js",
+            "async": false
           }
         ]
       }
