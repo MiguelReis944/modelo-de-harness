@@ -46,6 +46,13 @@ active_skills:
   - ponytail-gain
   - ponytail-help
   - ponytail-review
+  - domain-modeling
+  - code-review-standards-spec
+  - resolving-merge-conflicts
+  - handoff
+  - writing-for-agents
+  - git-guardrails-claude-code
+  - setup-pre-commit
 
 active_agents:
   - orquestrador

@@ -276,6 +276,27 @@ ou "normal mode" desliga. **full** é o padrão. O estado persiste em `~/.claude
 .ponytail-active` — por usuário na máquina, não por repositório, então vale pra todo
 projeto que você abrir com Claude Code, não só os deste harness.
 
+## Sete skills de `mattpocock/skills`
+
+[`mattpocock/skills`](https://github.com/mattpocock/skills) (MIT) é mantido por Matt
+Pocock — criador do curso "Total TypeScript", ex-Vercel, ~45 mil seguidores, ~60 mil
+assinantes da newsletter, listado no marketplace oficial do Claude Code. Sem red flags;
+conferido skill a skill antes de vendorizar.
+
+| Skill | Pra que serve |
+|---|---|
+| `git-guardrails-claude-code` | Hooks que **bloqueiam de verdade** `git push`, `reset --hard`, `clean`, `branch -D` etc. antes de executar — reforça em código o que hoje só existe como instrução textual |
+| `setup-pre-commit` | Configura Husky + lint-staged (Prettier) + typecheck + tests em pre-commit num repo |
+| `writing-for-agents` | Como escrever documentos PARA agentes — usar ao criar/editar skills, `AGENTS.md` ou `CLAUDE.md` |
+| `handoff` | Compacta a conversa atual num documento de handoff pra outro agente/sessão continuar |
+| `resolving-merge-conflicts` | Resolver um merge/rebase com conflito em andamento |
+| `domain-modeling` | Constrói/afia o modelo de domínio de um projeto — `CONTEXT.md`, ADRs |
+| `code-review-standards-spec` | Revisão em duas dimensões (Standards: segue convenção do repo? / Spec: entrega o que foi pedido?) rodando em sub-agentes paralelos |
+
+`code-review-standards-spec` foi **renomeado** — o original se chama só `code-review`, que
+colide com o skill nativo do Claude Code (`/code-review`, outra coisa). Diretório e
+`name:` no frontmatter foram ajustados; resto do conteúdo é o original.
+
 O catálogo completo pode crescer sem tudo ficar ativo — `active_skills` em
 `harness.config.yaml` é o conjunto realmente carregado, pra não estourar a janela de
 contexto. Hoje todas as skills do catálogo estão ativas; se a janela de contexto
