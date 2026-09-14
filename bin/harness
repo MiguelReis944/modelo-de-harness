@@ -51,13 +51,19 @@ cmd_doctor() {
   done
 
   echo "== submodules (workspace/) =="
-  git submodule status | while read -r line; do
-    case "$line" in
-      -*) echo "  NAO INICIALIZADO: ${line#-}";;
-      +*) echo "  COMMIT DIVERGENTE DO REGISTRADO: ${line#+}";;
-      *)  echo "  ok: ${line# }";;
-    esac
-  done
+  if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "  (fora de um repositorio git — secao ignorada)"
+  elif [ -z "$(git submodule status 2>/dev/null)" ]; then
+    echo "  (nenhum submodule registrado — use 'harness new-project')"
+  else
+    git submodule status | while read -r line; do
+      case "$line" in
+        -*) echo "  NAO INICIALIZADO: ${line#-}";;
+        +*) echo "  COMMIT DIVERGENTE DO REGISTRADO: ${line#+}";;
+        *)  echo "  ok: ${line# }";;
+      esac
+    done
+  fi
 
   echo "== hooks =="
   if [ -f hooks/hooks.json ] && [ -f .claude/settings.json ]; then
