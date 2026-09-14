@@ -1,3 +1,9 @@
+# Normaliza qualquer arquivo de texto pra LF (detecção automática de binário).
+# Sem isso, `git clone` no Windows converte LF->CRLF no checkout — foi assim que os
+# scripts vendorizados de skills de terceiros (ponytail, git-guardrails) entraram
+# com CRLF e quebraram o shellcheck no CI (SC1017).
+* text=auto eol=lf
+
 *.sh text eol=lf
 *.py text eol=lf
 catalog/skills/subagent-driven-development/scripts/* text eol=lf

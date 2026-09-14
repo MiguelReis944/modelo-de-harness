@@ -7,7 +7,7 @@ import sys
 
 # python nativo do Windows traduz \n -> \r\n no stdout por padrao; isso corromperia a
 # leitura por `for s in $(...)` no bash (o \r gruda no ultimo item da linha).
-sys.stdout.reconfigure(newline="\n")
+sys.stdout.reconfigure(encoding="utf-8", newline="\n")
 
 
 def strip_comment(line):
