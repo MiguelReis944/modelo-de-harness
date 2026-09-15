@@ -53,6 +53,11 @@ active_skills:
   - writing-for-agents
   - git-guardrails-claude-code
   - setup-pre-commit
+  - react-doctor
+  - improve-react
+  - improve-threejs
+  - performance
+  - animation-best-practices
 
 active_agents:
   - orquestrador

@@ -9,6 +9,13 @@
       "auth": "pat",
       "enabled": true
     },
+    "playwright": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@0.0.81"],
+      "auth": "none",
+      "enabled": true
+    },
     "context7": {
       "transport": "http",
       "url": "https://mcp.context7.com/mcp",

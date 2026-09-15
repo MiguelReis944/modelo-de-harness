@@ -235,6 +235,42 @@ Complementa o `/security-review` nativo do Claude Code (que varre o diff atual) 
 checklists e padrões de referência — e a seção de Agentic AI Security cobre riscos do
 próprio harness (MCP servers, sub-agentes), não só dos projetos em `workspace/`.
 
+## Cinco skills de React (`react-doctor` + `react-scan`)
+
+| Skill | Fonte | Pra que serve |
+|---|---|---|
+| `react-doctor` | [`millionco/react-doctor`](https://github.com/millionco/react-doctor) | Roda `npx react-doctor@latest` — scanner determinístico de state/effects, performance, arquitetura, segurança, acessibilidade. Score 0-100 |
+| `improve-react` | mesmo repo | Read-only: lê o scan do react-doctor, prioriza por leverage real, escreve planos de implementação pra outro agente executar — nunca edita código |
+| `improve-threejs` | mesmo repo | Mesma lógica pra Three.js/React Three Fiber (frame-loop, GPU leaks, scene-graph) |
+| `performance` | mesmo repo | Diagnóstico de performance runtime via trace do DevTools + outlines de render ao vivo |
+| `animation-best-practices` | [`aidenybai/react-scan`](https://github.com/aidenybai/react-scan) | Checklist de animação CSS/UI — hover, transição, flicker |
+
+Ambos os repos são do mesmo autor/organização — Aiden Bai (`millionco`), também criador do
+`million.js`; conta e organização verificadas antes de vendorizar. `react-scan` é o
+predecessor do `react-doctor` (o próprio README dele recomenda migrar), por isso só o skill
+secundário (`animation-best-practices`) veio de lá — o resto do valor de `react-scan` é como
+dependência **no projeto** (`npm install -D react-scan`), não como skill do harness.
+
+**Ressalva sobre `react-doctor` (o skill principal)**: o fluxo `/doctor` busca um
+"playbook canônico" em tempo real (`curl https://www.react.doctor/prompts/...`) em vez de
+seguir instruções versionadas neste repo — diferente de todo o resto do catálogo, que é
+100% estático. O domínio é do próprio autor da ferramenta, não terceiro, mas é a mesma
+classe de risco que `owasp-security` cataloga em "ASI04: Agentic Supply Chain
+Vulnerabilities" (seguir instrução de fonte externa não fixada). Mantido por decisão
+explícita do usuário. Os outros 3 skills (`improve-react`, `improve-threejs`,
+`performance`) são 100% locais — dependem só do CLI, sem fetch remoto.
+
+## MCP `playwright` (oficial da Microsoft)
+
+Vem de [`microsoft/playwright-mcp`](https://github.com/microsoft/playwright-mcp), pinado em
+`@playwright/mcp@0.0.81`. **Nota do próprio fabricante**: o README oficial recomenda o
+[`microsoft/playwright-cli`](https://github.com/microsoft/playwright-cli) (CLI + skills) em
+vez do MCP especificamente pra coding agents — é mais eficiente em tokens porque evita
+carregar schemas de tool e árvores de acessibilidade verbosas no contexto. Adicionado mesmo
+assim por decisão explícita do usuário; se algum projeto do `workspace/` for web, já existe
+`webapp-testing` (Playwright) e o Browser pane nativo do Claude Code, então há alguma
+sobreposição de propósito.
+
 ## `ponytail` — modo "dev preguiçoso" sempre ativo
 
 Diferente de todo o resto do catálogo, `ponytail` não ativa sob demanda por descrição —
