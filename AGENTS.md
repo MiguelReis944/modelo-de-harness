@@ -7,6 +7,12 @@ remoto no GitHub, clonado dentro do harness.
 
 A lista de projetos registrados está em [workspace.yaml](workspace.yaml).
 
+## Commits e publicação
+
+Nunca faça commits ou pushes por conta própria, nem configure automações que os
+façam. O usuário sempre executa essas operações. Prepare e valide as alterações,
+deixando-as para revisão. Esta regra vale para o harness e todos os sub-repositórios.
+
 ## Regras importantes ao editar arquivos dentro de `workspace/<projeto>/`
 
 - Cada `workspace/<projeto>/` tem seu **próprio histórico Git e remoto**.

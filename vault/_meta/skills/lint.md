@@ -19,6 +19,15 @@ Run these checks in order. Report findings as a structured list, then offer to f
 
 Scan all wiki pages for `[[wikilinks]]` that point to non-existent pages.
 
+⚠️ **Também verifique wikilinks quebrados por wrap de linha.** Prosa escrita com quebra de
+linha manual (~80-90 colunas) pode acidentalmente colocar um `\n` DENTRO de um `[[...]]`
+(ex.: `[[Nome do\nConceito]]`), o que é sintaticamente inválido pro Obsidian resolver mas
+passa despercebido numa checagem ingênua de "existe uma página com este nome exato" se o
+regex usado não considerar que o link pode estar partido em duas linhas. Ao escrever um
+checker de link, use um regex tolerante a `\s` (incluindo
+newline) dentro do `[[...]]`, e ao ESCREVER páginas novas, evite deixar o editor quebrar uma
+linha no meio de um wikilink.
+
 **Report format:**
 ```markdown
 ### Broken Links

@@ -21,6 +21,8 @@ Domínio: **engineering** (projetos pessoais de software — arquitetura, decis�
 - `supersedes` — substitui uma versão ou decisão anterior
 - `calls` — invocação entre serviços/módulos ou chamada de API
 - `deploys_to` — roda num alvo de infraestrutura específico
+- `governs` — regra, conceito ou norma que determina o comportamento de uma entidade (ex.:
+  uma lei ou um padrão de arquitetura `governs` o service que a implementa)
 
 ## Tags
 - `#status/active` `#status/deprecated` `#status/planned`

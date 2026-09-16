@@ -4,13 +4,23 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
 
-permissions:
-  contents: read
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -36,3 +46,6 @@ jobs:
 
       - name: testes (bin/render_mcp.py, bin/render_settings.py, bin/yaml_list.py)
         run: bash tests/run.sh
+
+      - name: Testes da sincronizacao com o harness oficial
+        run: python3 .github/tests/test_sync_upstream.py

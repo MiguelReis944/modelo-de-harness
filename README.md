@@ -9,6 +9,48 @@ Este repositório é um **template**: vem com `workspace/` vazio (`projects: []`
 [workspace.yaml](workspace.yaml)) e todo o resto — skills, agentes, MCP, CI — pronto pra
 uso. A ideia é você adotar ele como o harness dos *seus* projetos.
 
+## Sincronização com o harness oficial
+
+A origem deste modelo é `MiguelReis944/harness`, branch `main`. A sincronização
+aplica mudanças localmente para revisão: commits e pushes são sempre feitos pelo
+usuário. Não há publicação automática nem secret de acesso ao harness privado.
+
+No checkout do harness oficial, os hooks locais `post-commit` e `post-merge`
+sincronizam `workspace/modelo-de-harness` após commits ou merges na `main`.
+O modelo precisa estar limpo; se houver trabalho pendente, o hook avisa e preserva
+os arquivos. Os hooks ficam em `hooks/git/`, ativados no harness com
+`git config --local core.hooksPath hooks/git`.
+
+Para sincronizar manualmente este modelo com uma versão já buscada do oficial:
+
+```bash
+git fetch upstream main
+bash .github/scripts/sync-upstream.sh refs/remotes/upstream/main
+bash bin/harness sync
+bash bin/harness doctor
+bash tests/run.sh
+```
+
+Em clones novos, registre a origem antes: `git remote add upstream
+https://github.com/MiguelReis944/harness.git` (é necessário acesso ao repositório
+privado). Revise o diff preparado no índice e faça você mesmo o commit e o push.
+
+Ele atualiza `catalog/`, `agents/`, `bin/`, `hooks/`, `mcp/`, `tests/`,
+`harness.config.yaml`, `AGENTS.md`, `LICENSE`, `.gitignore`, `.gitattributes` e as
+instruções operacionais em `vault/_meta/`. Arquivos
+removidos na origem também são removidos desses caminhos no modelo.
+
+O README, os workflows e `vault/AGENTS.md` deste template são mantidos separadamente. `workspace.yaml`
+continua com `projects: []`; submodules, projetos e conteúdo curado do vault não
+são importados. Novos caminhos fora da lista precisam ser incluídos explicitamente
+em `.github/scripts/sync-upstream.sh`. Faça mudanças na infraestrutura compartilhada
+no harness oficial: alterações nesses caminhos no modelo serão substituídas.
+
+A CI testa os limites da sincronização e a suíte do harness. Os hooks copiam
+somente a versão commitada na `main` local do oficial; arquivos ainda não
+commitados ficam de fora. A atualização do repositório no GitHub acontece somente
+quando você faz o commit e o push do modelo.
+
 ## Como usar
 
 ### 1. Adote o template
