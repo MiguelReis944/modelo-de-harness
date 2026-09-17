@@ -12,8 +12,9 @@ uso. A ideia é você adotar ele como o harness dos *seus* projetos.
 ## Sincronização com o harness oficial
 
 A origem deste modelo é `MiguelReis944/harness`, branch `main`. A sincronização
-aplica mudanças localmente para revisão: commits e pushes são sempre feitos pelo
-usuário. Não há publicação automática nem secret de acesso ao harness privado.
+aplica mudanças localmente para revisão. Agentes fazem commits locais como checkpoints
+ao concluir e verificar cada parte coesa; push e publicação exigem pedido explícito. Não há
+publicação automática nem secret de acesso ao harness privado.
 
 No checkout do harness oficial, os hooks locais `post-commit` e `post-merge`
 sincronizam `workspace/modelo-de-harness` após commits ou merges na `main`.
@@ -33,14 +34,17 @@ bash tests/run.sh
 
 Em clones novos, registre a origem antes: `git remote add upstream
 https://github.com/MiguelReis944/harness.git` (é necessário acesso ao repositório
-privado). Revise o diff preparado no índice e faça você mesmo o commit e o push.
+privado). Revise o diff preparado no índice. O agente faz o commit local ao concluir
+e verificar essa parte;
+push exige pedido explícito.
 
 Ele atualiza `catalog/`, `agents/`, `bin/`, `hooks/`, `mcp/`, `tests/`,
-`harness.config.yaml`, `AGENTS.md`, `LICENSE`, `.gitignore`, `.gitattributes` e as
+`harness.config.yaml`, `LICENSE`, `.gitignore`, `.gitattributes` e as
 instruções operacionais em `vault/_meta/`. Arquivos
 removidos na origem também são removidos desses caminhos no modelo.
 
-O README, os workflows e `vault/AGENTS.md` deste template são mantidos separadamente. `workspace.yaml`
+O README, `AGENTS.md`, os workflows e `vault/AGENTS.md` deste template são mantidos
+separadamente. `workspace.yaml`
 continua com `projects: []`; submodules, projetos e conteúdo curado do vault não
 são importados. Novos caminhos fora da lista precisam ser incluídos explicitamente
 em `.github/scripts/sync-upstream.sh`. Faça mudanças na infraestrutura compartilhada
@@ -49,7 +53,7 @@ no harness oficial: alterações nesses caminhos no modelo serão substituídas.
 A CI testa os limites da sincronização e a suíte do harness. Os hooks copiam
 somente a versão commitada na `main` local do oficial; arquivos ainda não
 commitados ficam de fora. A atualização do repositório no GitHub acontece somente
-quando você faz o commit e o push do modelo.
+quando você autoriza o push do modelo.
 
 ## Como usar
 
@@ -86,7 +90,7 @@ O agente, para cada link:
 1. Roda `bin/harness new-project <nome> <url>` (`git submodule add` + registra a entrada
    em `workspace.yaml`).
 2. Preenche `domain`/`type`/`summary` daquela entrada (pergunta se não conseguir inferir).
-3. Roda `sync` de novo e commita as mudanças **com sua aprovação**.
+3. Roda `sync` de novo e faz um commit local como checkpoint após verificar essa parte.
 
 Opcionalmente, peça pra ligar o projeto ao vault de conhecimento (skill `bridge` — ver
 [Vault](#vault--base-de-conhecimento-padrão-obsidian) abaixo) se quiser que o agente
@@ -193,8 +197,10 @@ Entre na pasta do projeto e trabalhe normalmente — é um repositório Git comu
 cd workspace/<projeto>
 git add .
 git commit -m "minha mudança"
-git push
 ```
+
+Agentes fazem esse commit local após verificar a parte concluída. `git push` só
+deve ser executado mediante pedido explícito de publicação.
 
 Depois de commitar dentro do submodule, o harness marca essa pasta como modificada
 (o ponteiro de commit mudou). Para fixar a nova versão no harness:

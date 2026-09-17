@@ -9,14 +9,17 @@ A lista de projetos registrados está em [workspace.yaml](workspace.yaml).
 
 ## Commits e publicação
 
-Nunca faça commits ou pushes por conta própria, nem configure automações que os
-façam. O usuário sempre executa essas operações. Prepare e valide as alterações,
-deixando-as para revisão. Esta regra vale para o harness e todos os sub-repositórios.
+Ao concluir e verificar uma parte coesa do trabalho, com começo, meio e fim, o agente
+deve fazer um commit local como checkpoint antes de iniciar a próxima parte. Não é
+necessário pedir autorização separada para esse commit. Inclua somente arquivos da
+parte concluída; nunca inclua alterações preexistentes ou de outra tarefa sem
+autorização. Push, publicação e automações que façam push continuam exigindo pedido
+explícito. Esta regra vale para o harness e todos os sub-repositórios.
 
 ## Regras importantes ao editar arquivos dentro de `workspace/<projeto>/`
 
 - Cada `workspace/<projeto>/` tem seu **próprio histórico Git e remoto**.
-  Commits feitos ali devem ser enviados (`git push`) para o repositório
+  Quando um push for solicitado, envie os commits para o repositório
   daquele projeto, nunca para o repositório do harness.
 - Depois de commitar dentro de um submodule, o harness vai marcar esse
   submodule como "modified" (o ponteiro de commit mudou). Para atualizar o

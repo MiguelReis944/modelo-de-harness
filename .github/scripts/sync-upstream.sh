@@ -15,9 +15,9 @@ if [[ $(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' workspace.yaml) != 'projects:
 fi
 
 # A positive list prevents new project-specific root files from becoming public.
-# README, .github, workspace and curated vault content belong to the template.
+# README, AGENTS.md, .github, workspace and curated vault content belong to the template.
 paths=(
-  .gitattributes .gitignore AGENTS.md LICENSE harness.config.yaml
+  .gitattributes .gitignore LICENSE harness.config.yaml
   agents bin catalog hooks mcp tests vault/_meta
 )
 
