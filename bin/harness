@@ -100,23 +100,32 @@ cmd_skills() {
 }
 
 cmd_new_project() {
-  local name="${1:-}" url="${2:-}"
+  local name="${1:-}" url="${2:-}" quoted_project
   [ -n "$name" ] && [ -n "$url" ] || { echo "uso: harness new-project <nome> <git-url>"; exit 1; }
+  python3 - "$name" <<'PY'
+import sys
+name = sys.argv[1]
+if name in (".", "..") or any(char in "/\\" or ord(char) < 32 for char in name):
+    sys.exit("nome invalido: use uma unica pasta, sem separadores ou caracteres de controle")
+PY
   git submodule add "$url" "workspace/$name"
   python3 "$ROOT/bin/project_docs.py" init "workspace/$name"
-  cat >> workspace.yaml << YAML
-
-  - name: $name
-    path: workspace/$name
-    repo: $url
-YAML
+  python3 - "$name" "$url" >> workspace.yaml <<'PY'
+import json
+import sys
+name, url = sys.argv[1:]
+print("\n  - name: " + json.dumps(name))
+print("    path: " + json.dumps("workspace/" + name))
+print("    repo: " + json.dumps(url))
+PY
+  printf -v quoted_project '%q' "workspace/$name"
   echo "adicionado como submodule: workspace/$name"
   echo "documentacao inicial preparada em workspace/$name/docs/"
   echo "commite os documentos no repositorio do projeto:"
-  echo "  (cd workspace/$name && git add docs AGENTS.md && git commit -m \"Add project documentation\")"
+  printf '  (cd %s && git add -- docs AGENTS.md && git commit -m %q)\n' "$quoted_project" 'Add project documentation'
   echo "edite workspace.yaml (domain/type/summary, se quiser); depois registre o submodule no harness:"
-  echo "  git add .gitmodules workspace/$name workspace.yaml"
-  echo "  git commit -m \"add $name as submodule\""
+  printf '  git add -- .gitmodules %s workspace.yaml\n' "$quoted_project"
+  printf '  git commit -m %q\n' "add $name as submodule"
 }
 
 cmd_update_projects() {

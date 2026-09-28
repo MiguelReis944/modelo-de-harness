@@ -2,7 +2,9 @@
 """Create and inspect the canonical documents in harness projects."""
 
 import argparse
+import os
 import shutil
+import stat
 from pathlib import Path
 
 
@@ -16,28 +18,41 @@ Leia `docs/prd.md` para escopo e requisitos; `docs/architecture.md` para código
 """
 
 
+def reject_reparse_points(path: Path) -> None:
+    absolute = Path(os.path.abspath(path))
+    for component in reversed((absolute, *absolute.parents)):
+        try:
+            details = component.lstat()
+        except FileNotFoundError:
+            continue
+        if stat.S_ISLNK(details.st_mode) or (
+            getattr(details, "st_file_attributes", 0)
+            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+        ):
+            raise ValueError(
+                f"caminho atravessa link simbólico ou ponto de nova análise: {component}; "
+                "use diretórios e arquivos reais"
+            )
+
+
 def init(project: Path) -> None:
-    if project.is_symlink():
-        raise ValueError(f"raiz do projeto é link simbólico: {project}; use um diretório real")
+    reject_reparse_points(project)
     if not project.is_dir():
         raise ValueError(f"diretório de projeto ausente: {project}")
 
     templates = Path(__file__).resolve().parent.parent / "templates" / "project-docs"
     docs = project / "docs"
-    if docs.is_symlink():
-        raise ValueError(f"docs/ é link simbólico: {docs}; substitua por um diretório real")
+    reject_reparse_points(docs)
     if docs.exists() and not docs.is_dir():
         raise ValueError(f"docs/ não é diretório: {docs}")
     for filename in DOCS:
         destination = docs / filename
-        if destination.is_symlink():
-            raise ValueError(f"documento é link simbólico: {destination}; use um arquivo regular")
+        reject_reparse_points(destination)
         if destination.exists() and not destination.is_file():
             raise ValueError(f"documento não é arquivo regular: {destination}")
 
     agents = project / "AGENTS.md"
-    if agents.is_symlink():
-        raise ValueError(f"AGENTS.md é link simbólico: {agents}; use um arquivo regular")
+    reject_reparse_points(agents)
     if agents.exists() and not agents.is_file():
         raise ValueError(f"AGENTS.md não é arquivo regular: {agents}")
 
