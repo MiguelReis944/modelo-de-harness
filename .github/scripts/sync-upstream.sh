@@ -18,7 +18,7 @@ fi
 # README, AGENTS.md, .github, workspace and curated vault content belong to the template.
 paths=(
   .gitattributes .gitignore LICENSE harness.config.yaml
-  agents bin catalog hooks mcp tests vault/_meta
+  agents bin catalog hooks mcp templates tests vault/_meta
 )
 
 # Union includes removed files, so restore also deletes obsolete infrastructure.

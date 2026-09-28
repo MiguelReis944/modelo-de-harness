@@ -65,6 +65,9 @@ cmd_doctor() {
     done
   fi
 
+  echo "== documentacao dos projetos =="
+  python3 "$ROOT/bin/project_docs.py" check "$ROOT/workspace" || ok=1
+
   echo "== hooks =="
   if [ -f hooks/hooks.json ] && [ -f .claude/settings.json ]; then
     python3 -c "
@@ -100,6 +103,7 @@ cmd_new_project() {
   local name="${1:-}" url="${2:-}"
   [ -n "$name" ] && [ -n "$url" ] || { echo "uso: harness new-project <nome> <git-url>"; exit 1; }
   git submodule add "$url" "workspace/$name"
+  python3 "$ROOT/bin/project_docs.py" init "workspace/$name"
   cat >> workspace.yaml << YAML
 
   - name: $name
@@ -107,6 +111,7 @@ cmd_new_project() {
     repo: $url
 YAML
   echo "adicionado como submodule: workspace/$name"
+  echo "documentacao inicial preparada em workspace/$name/docs/"
   echo "edite workspace.yaml (domain/type/summary, se quiser) e commite:"
   echo "  git add .gitmodules workspace/$name workspace.yaml"
   echo "  git commit -m \"add $name as submodule\""
@@ -130,7 +135,7 @@ case "${1:-help}" in
   *) cat <<USAGE
 harness — ferramental do harness
   sync                       projeta skills/agents/mcp/hooks pro Claude Code (.claude/, .mcp.json)
-  doctor                     confere binarios, skills, sub-agentes, MCP e submodules
+  doctor                     confere binarios, skills, sub-agentes, MCP, submodules e documentos
   skills                     lista catalogo vs ativo
   new-project <nome> <url>   adiciona repo como submodule em workspace/
   update-projects            atualiza todos os submodules pro commit mais recente do remoto
