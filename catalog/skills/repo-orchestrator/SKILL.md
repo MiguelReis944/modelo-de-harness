@@ -20,10 +20,18 @@ projeto dentro de `workspace/`.
    projetos.
 3. Leia o `AGENTS.md` do próprio projeto (cada repo em `workspace/` pode ter o seu, com
    convenções específicas — isso tem prioridade sobre qualquer suposição genérica).
-4. Se o MCP do GitHub estiver habilitado, puxe PRs/issues recentes do repo.
-5. Sintetize um **contexto escopado** (só o necessário pra tarefa — não despeje o vault
-   inteiro nem o AGENTS.md inteiro do projeto).
-6. Proponha um plano e **pare pra gate humano** antes de alterar código, se a mudança for
+4. Leia sempre `docs/rules.md` e `docs/memory.md` quando existirem. Eles são a memória
+   operacional local e os fatos duráveis do projeto; não substituem `AGENTS.md` nem o
+   vault.
+5. Carregue os documentos restantes conforme a tarefa: `docs/prd.md` para problema,
+   escopo e requisitos; `docs/architecture.md` para código, dados, APIs e implantação;
+   `docs/design.md` para jornadas, interface e fluxos de CLI/API; e `docs/tasks.md` para
+   backlog, dependências e critérios de aceitação. Se um arquivo estiver ausente, registre
+   a lacuna e use `bin/project_docs.py init` ou peça a criação antes de depender dele.
+6. Se o MCP do GitHub estiver habilitado, puxe PRs/issues recentes do repo.
+7. Sintetize um **contexto escopado** (só o necessário pra tarefa — não despeje o vault,
+   os seis documentos ou o AGENTS.md inteiro do projeto).
+8. Proponha um plano e **pare pra gate humano** antes de alterar código, se a mudança for
    não-trivial.
 
 ## Lembrete sobre submodules
@@ -33,5 +41,6 @@ submodule, atualize o ponteiro no harness (`git add workspace/<repo> && git comm
 [AGENTS.md](../../../AGENTS.md) na raiz.
 
 ## Saída
-Um resumo curto: o que é o repo, convenções relevantes do AGENTS.md dele, regras do vault
-aplicáveis, PRs/issues recentes, e o plano.
+Um resumo curto: o que é o repo, a distinção entre fonte local e vault, documentos
+consultados (e ausentes), convenções relevantes do AGENTS.md, regras do vault,
+PRs/issues recentes, e o plano.
