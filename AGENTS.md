@@ -71,3 +71,9 @@ em `workspace.yaml`).
 - `skills` — lista catálogo vs. ativo (`harness.config.yaml`)
 - `new-project <nome> <url>` — adiciona um repo como submodule em `workspace/`
 - `update-projects` — atualiza todos os submodules pro commit mais recente do remoto
+
+<!-- project-docs-routing -->
+## Documentação do projeto
+
+Leia sempre `docs/rules.md` e `docs/memory.md` antes de trabalhar neste projeto.
+Leia `docs/prd.md` para escopo e requisitos; `docs/architecture.md` para código, dados, APIs e implantação; `docs/design.md` para interface, experiência de uso e fluxos de CLI; e `docs/tasks.md` para backlog e planejamento.
