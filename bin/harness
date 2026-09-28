@@ -112,7 +112,9 @@ cmd_new_project() {
 YAML
   echo "adicionado como submodule: workspace/$name"
   echo "documentacao inicial preparada em workspace/$name/docs/"
-  echo "edite workspace.yaml (domain/type/summary, se quiser) e commite:"
+  echo "commite os documentos no repositorio do projeto:"
+  echo "  (cd workspace/$name && git add docs AGENTS.md && git commit -m \"Add project documentation\")"
+  echo "edite workspace.yaml (domain/type/summary, se quiser); depois registre o submodule no harness:"
   echo "  git add .gitmodules workspace/$name workspace.yaml"
   echo "  git commit -m \"add $name as submodule\""
 }

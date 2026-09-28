@@ -17,11 +17,30 @@ Leia `docs/prd.md` para escopo e requisitos; `docs/architecture.md` para código
 
 
 def init(project: Path) -> None:
+    if project.is_symlink():
+        raise ValueError(f"raiz do projeto é link simbólico: {project}; use um diretório real")
     if not project.is_dir():
         raise ValueError(f"diretório de projeto ausente: {project}")
 
     templates = Path(__file__).resolve().parent.parent / "templates" / "project-docs"
     docs = project / "docs"
+    if docs.is_symlink():
+        raise ValueError(f"docs/ é link simbólico: {docs}; substitua por um diretório real")
+    if docs.exists() and not docs.is_dir():
+        raise ValueError(f"docs/ não é diretório: {docs}")
+    for filename in DOCS:
+        destination = docs / filename
+        if destination.is_symlink():
+            raise ValueError(f"documento é link simbólico: {destination}; use um arquivo regular")
+        if destination.exists() and not destination.is_file():
+            raise ValueError(f"documento não é arquivo regular: {destination}")
+
+    agents = project / "AGENTS.md"
+    if agents.is_symlink():
+        raise ValueError(f"AGENTS.md é link simbólico: {agents}; use um arquivo regular")
+    if agents.exists() and not agents.is_file():
+        raise ValueError(f"AGENTS.md não é arquivo regular: {agents}")
+
     docs.mkdir(exist_ok=True)
     for filename in DOCS:
         source = templates / filename
@@ -29,10 +48,10 @@ def init(project: Path) -> None:
         if destination.exists():
             print(f"preservado: {destination}")
         else:
-            shutil.copyfile(source, destination)
+            with source.open("rb") as input_file, destination.open("xb") as output_file:
+                shutil.copyfileobj(input_file, output_file)
             print(f"criado: {destination}")
 
-    agents = project / "AGENTS.md"
     if agents.exists():
         existing = agents.read_text(encoding="utf-8")
         if MARKER in existing:
@@ -43,16 +62,20 @@ def init(project: Path) -> None:
                 output.write(separator + POINTER)
             print(f"atualizado: {agents} (ponteiro criado)")
     else:
-        agents.write_text("# Instruções do projeto\n\n" + POINTER, encoding="utf-8")
+        with agents.open("x", encoding="utf-8") as output:
+            output.write("# Instruções do projeto\n\n" + POINTER)
         print(f"criado: {agents}")
 
 
 def check(workspace: Path) -> int:
+    if not workspace.exists() and not workspace.is_symlink():
+        print("documentação dos projetos: completa (workspace ausente)")
+        return 0
     if not workspace.is_dir():
-        raise ValueError(f"diretório de workspace ausente: {workspace}")
+        raise ValueError(f"workspace não é diretório: {workspace}")
 
     missing_any = False
-    for project in sorted((entry for entry in workspace.iterdir() if entry.is_dir()), key=lambda p: p.name.casefold()):
+    for project in sorted((entry for entry in workspace.iterdir() if entry.is_dir() and not entry.is_symlink()), key=lambda p: p.name.casefold()):
         missing = [name for name in DOCS if not (project / "docs" / name).is_file()]
         if missing:
             print(f"{project.name}: faltam {', '.join('docs/' + name for name in missing)}")
