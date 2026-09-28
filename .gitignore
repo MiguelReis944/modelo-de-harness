@@ -2,3 +2,20 @@
 .mcp.json
 CLAUDE.md
 vault/.obsidian/
+.agents/skills/
+.codex/config.toml
+.codex/agents/
+__pycache__/
+.gocache-agent
+.cache
+.tmp/
+.tmp-go-cache/
+.go-cache-*/
+
+# cópias de anexos gerenciadas pelo cliente Codex
+.codex-remote-attachments/
+vault/projects/*/.attachments/
+
+# artefatos de sessão do Playwright MCP (snapshots de página, logs de console)
+# gerados ao capturar telas para os vídeos
+.playwright-mcp/

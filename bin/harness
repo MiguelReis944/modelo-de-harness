@@ -1,35 +1,20 @@
 #!/usr/bin/env bash
-# harness — ferramental deste harness (Claude Code), workspace/ em git submodules
+# harness — ferramental deste harness (Claude Code e Codex), workspace/ em git submodules
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CFG="$ROOT/harness.config.yaml"
 cd "$ROOT"
+PYTHON="${HARNESS_PYTHON:-python3}"
+if ! "$PYTHON" --version >/dev/null 2>&1; then PYTHON=python; fi
 
 # extrai itens de uma lista YAML simples sob uma chave top-level (ver bin/yaml_list.py)
 yaml_list() { # $1=key $2=file
-  python3 "$ROOT/bin/yaml_list.py" "$1" "$2"
+  "$PYTHON" "$ROOT/bin/yaml_list.py" "$1" "$2"
 }
 
 cmd_sync() {
-  # Copia (nao symlink): criar symlink no Windows exige Modo Desenvolvedor/admin, e um
-  # symlink que falha silenciosamente vira copia estatica desatualizada sem avisar.
-  # Rode este comando de novo sempre que editar catalog/skills/, agents/ ou mcp/servers.json.
-  local skills agents
-  skills=$(yaml_list active_skills "$CFG")
-  agents=$(yaml_list active_agents "$CFG")
-
-  cp -f AGENTS.md CLAUDE.md
-  echo "  CLAUDE.md <- AGENTS.md (copia)"
-
-  rm -rf .claude/skills .claude/agents
-  mkdir -p .claude/skills .claude/agents
-  for s in $skills; do cp -r "catalog/skills/$s" ".claude/skills/$s"; done
-  for a in $agents; do cp -f "agents/$a/AGENT.md" ".claude/agents/$a.md"; done
-  python3 bin/render_mcp.py mcp/servers.json > .mcp.json
-  python3 bin/render_settings.py hooks/hooks.json .claude/settings.json
-  echo "  claude:  .claude/skills/* .claude/agents/* .mcp.json .claude/settings.json (hooks)"
-  echo "sync ok."
+  "$PYTHON" "$ROOT/bin/sync.py"
 }
 
 cmd_doctor() {
@@ -39,6 +24,8 @@ cmd_doctor() {
 
   echo "== binarios =="
   command -v claude >/dev/null && echo "  claude: ok" || echo "  claude: faltando (npm i -g @anthropic-ai/claude-code)"
+
+  command -v codex >/dev/null && echo "  codex: ok" || echo "  codex: faltando (instale Codex CLI ou use o app)"
 
   echo "== skills ativas =="
   for s in $skills; do
@@ -66,11 +53,11 @@ cmd_doctor() {
   fi
 
   echo "== documentacao dos projetos =="
-  python3 "$ROOT/bin/project_docs.py" check "$ROOT/workspace" || ok=1
+  "$PYTHON" "$ROOT/bin/project_docs.py" check "$ROOT/workspace" || ok=1
 
   echo "== hooks =="
   if [ -f hooks/hooks.json ] && [ -f .claude/settings.json ]; then
-    python3 -c "
+    "$PYTHON" -c "
 import json
 h = json.load(open('.claude/settings.json', encoding='utf-8')).get('hooks', {})
 if 'SessionStart' in h:
@@ -83,7 +70,7 @@ else:
   fi
 
   echo "== MCP =="
-  python3 - "mcp/servers.json" << 'PY'
+  "$PYTHON" - "mcp/servers.json" << 'PY'
 import json,sys
 d=json.load(open(sys.argv[1]))
 for n,s in d.get("servers",{}).items():
@@ -91,6 +78,18 @@ for n,s in d.get("servers",{}).items():
     print(f"  {n}: {st} ({s.get('transport','stdio')}) - auth: {s.get('auth','-')}")
 print("  lembrete: credenciais sao locais (env / *.local.json), nunca no repo.")
 PY
+  echo "== projecoes =="
+  for tool in $(yaml_list tools "$CFG"); do
+    if [ "$tool" = codex ]; then
+      for s in $skills; do
+        [ -f ".agents/skills/$s/SKILL.md" ] || { echo "  codex skill ausente: $s"; ok=1; }
+      done
+      for a in $agents; do
+        [ -f ".codex/agents/$a.toml" ] || { echo "  codex agente ausente: $a"; ok=1; }
+      done
+      [ -f .codex/config.toml ] || { echo "  codex MCP ausente"; ok=1; }
+    fi
+  done
   return $ok
 }
 
@@ -100,7 +99,7 @@ cmd_skills() {
 }
 
 project_manifest() { # $1=check|append $2=name $3=url
-  python3 - "$@" <<'PY'
+  "$PYTHON" - "$@" <<'PY'
 import json
 from pathlib import Path
 import re
@@ -153,7 +152,7 @@ cmd_new_project() {
   [ -n "$name" ] && [ -n "$url" ] || { echo "uso: harness new-project <nome> <git-url>"; exit 1; }
   project_manifest check "$name" "$url"
   git submodule add "$url" "workspace/$name"
-  python3 "$ROOT/bin/project_docs.py" init "workspace/$name"
+  "$PYTHON" "$ROOT/bin/project_docs.py" init "workspace/$name"
   project_manifest append "$name" "$url"
   printf -v quoted_project '%q' "workspace/$name"
   echo "adicionado como submodule: workspace/$name"
@@ -182,7 +181,7 @@ case "${1:-help}" in
   update-projects) cmd_update_projects ;;
   *) cat <<USAGE
 harness — ferramental do harness
-  sync                       projeta skills/agents/mcp/hooks pro Claude Code (.claude/, .mcp.json)
+  sync                       projeta skills/agents/MCP para Claude Code e Codex; hooks para Claude
   doctor                     confere binarios, skills, sub-agentes, MCP, submodules e documentos
   skills                     lista catalogo vs ativo
   new-project <nome> <url>   adiciona repo como submodule em workspace/

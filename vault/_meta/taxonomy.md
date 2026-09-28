@@ -9,6 +9,12 @@ Domínio: **engineering** (projetos pessoais de software — arquitetura, decis�
 - `incident` — bugs, comportamentos inesperados, post-mortems
 - `dependency` — bibliotecas, frameworks, serviços externos
 - `adr` — registro de decisão arquitetural
+- `certification` — certificado ou credencial obtida por pessoa
+- `institution` — escola, empresa, organização, grupo
+- `project` — produto ou repositório de software
+- `person` — indivíduo (membro de equipe, contribuidor)
+- `component` — parte de um serviço ou sistema maior
+- `profile` — ativo público que representa a identidade profissional de uma pessoa
 
 ## Relation Types
 - `depends_on` — precisa de outra entidade pra funcionar
@@ -25,6 +31,7 @@ Domínio: **engineering** (projetos pessoais de software — arquitetura, decis�
   uma lei ou um padrão de arquitetura `governs` o service que a implementa)
 
 ## Tags
-- `#status/active` `#status/deprecated` `#status/planned`
+- `#status/active` `#status/deprecated` `#status/planned` `#status/proposed` `#status/resolved`
 - `#severity/critical` `#severity/high` `#severity/medium` `#severity/low`
-- `#source-type/code` `#source-type/doc` `#source-type/incident` `#source-type/adr`
+- `#source-type/code` `#source-type/doc` `#source-type/incident` `#source-type/adr` `#source-type/spec` `#source-type/internal`
+- `#confidence/high` `#confidence/medium` `#confidence/low`
