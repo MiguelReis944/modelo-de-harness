@@ -99,25 +99,62 @@ cmd_skills() {
   echo "== ativas =="; yaml_list active_skills "$CFG"
 }
 
+project_manifest() { # $1=check|append $2=name $3=url
+  python3 - "$@" <<'PY'
+import json
+from pathlib import Path
+import re
+import sys
+
+mode, name, url = sys.argv[1:]
+if name in (".", "..") or any(char in "/\\" or ord(char) < 32 for char in name):
+    sys.exit("nome invalido: use uma unica pasta, sem separadores ou caracteres de controle")
+
+manifest = Path("workspace.yaml")
+with manifest.open("r", encoding="utf-8", newline="") as source:
+    content = source.read()
+lines = content.splitlines(keepends=True)
+headers = [index for index, line in enumerate(lines) if line.startswith("projects:")]
+if len(headers) != 1:
+    sys.exit("workspace.yaml invalido: esperado um unico campo projects: no nivel principal")
+
+index = headers[0]
+header = lines[index].rstrip("\r\n")
+match = re.fullmatch(r"projects:[ \t]*(\[\])?[ \t]*(#.*)?", header)
+if not match:
+    sys.exit("workspace.yaml invalido: projects deve ser uma lista ou projects: []")
+end = index + 1
+while end < len(lines) and (not lines[end] or lines[end][0] in " \t#\r\n"):
+    end += 1
+items = [line for line in lines[index + 1:end] if line.strip() and not line.lstrip().startswith("#")]
+if match.group(1) and items:
+    sys.exit("workspace.yaml invalido: projects: [] contem itens adicionais")
+if items and not items[0].startswith("  - "):
+    sys.exit("workspace.yaml invalido: projects deve conter itens de lista com recuo de dois espacos")
+if mode == "check":
+    sys.exit(0)
+
+newline = "\r\n" if "\r\n" in content else "\n"
+if match.group(1):
+    comment = match.group(2)
+    lines[index] = "projects:" + (" " + comment if comment else "") + newline
+    end = index + 1
+entry = (newline + "  - name: " + json.dumps(name) + newline
+         + "    path: " + json.dumps("workspace/" + name) + newline
+         + "    repo: " + json.dumps(url) + newline)
+lines.insert(end, entry)
+with manifest.open("w", encoding="utf-8", newline="") as output:
+    output.write("".join(lines))
+PY
+}
+
 cmd_new_project() {
   local name="${1:-}" url="${2:-}" quoted_project
   [ -n "$name" ] && [ -n "$url" ] || { echo "uso: harness new-project <nome> <git-url>"; exit 1; }
-  python3 - "$name" <<'PY'
-import sys
-name = sys.argv[1]
-if name in (".", "..") or any(char in "/\\" or ord(char) < 32 for char in name):
-    sys.exit("nome invalido: use uma unica pasta, sem separadores ou caracteres de controle")
-PY
+  project_manifest check "$name" "$url"
   git submodule add "$url" "workspace/$name"
   python3 "$ROOT/bin/project_docs.py" init "workspace/$name"
-  python3 - "$name" "$url" >> workspace.yaml <<'PY'
-import json
-import sys
-name, url = sys.argv[1:]
-print("\n  - name: " + json.dumps(name))
-print("    path: " + json.dumps("workspace/" + name))
-print("    repo: " + json.dumps(url))
-PY
+  project_manifest append "$name" "$url"
   printf -v quoted_project '%q' "workspace/$name"
   echo "adicionado como submodule: workspace/$name"
   echo "documentacao inicial preparada em workspace/$name/docs/"
