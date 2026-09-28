@@ -19,6 +19,8 @@ Leia `docs/prd.md` para escopo e requisitos; `docs/architecture.md` para código
 
 
 def reject_reparse_points(path: Path) -> None:
+    if ".." in path.parts:
+        raise ValueError(f"caminho contém '..': {path}; use um caminho sem subir diretórios")
     absolute = Path(os.path.abspath(path))
     for component in reversed((absolute, *absolute.parents)):
         try:
